@@ -1,0 +1,43 @@
+name: Instagram yayını
+
+on:
+  schedule:
+    - cron: "0 16 * * *"   # 16:00 UTC = 19:00 Türkiye (GitHub zamanlanmış görevleri birkaç dakika gecikebilir)
+  workflow_dispatch:
+    inputs:
+      kuru:
+        description: "Kuru çalıştır (yayınlama, yalnız sıradakini göster)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-yayin
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet requests
+      - name: Sıradaki Reels'i yayınla
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_ID: ${{ secrets.IG_ID }}
+          IG_API: ${{ secrets.IG_API }}
+          KURU: ${{ github.event_name == 'workflow_dispatch' && inputs.kuru || 'false' }}
+        run: python yayinla.py
+      - name: Sonucu kuyruğa yaz
+        if: always()
+        run: |
+          git config user.name "kandil-yayin"
+          git config user.email "kandil-yayin@users.noreply.github.com"
+          git add kuyruk.json
+          git diff --cached --quiet || (git commit -m "Yayın sonucu $(date -u +%F)" && git push)

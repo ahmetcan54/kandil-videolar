@@ -104,13 +104,24 @@ def main():
         return 0
     v = aday[0]
     print(f"Sıradaki: {v['etiket']} ({v.get('tarih')})")
-    if kuru:
-        print("[kuru] yayınlanmadı.")
-        return 0
     tok, uid = os.environ.get("IG_TOKEN"), os.environ.get("IG_ID")
     if not tok or not uid:
         print("HATA: IG_TOKEN / IG_ID gizli değerleri yok.")
         return 1
+    # Önce zararsız bir okuma ile erişimi yokla: Meta API'yi kısıtladıysa (27.11: "API access blocked")
+    # videoya dokunma, 'hata' yazma; yalnız erişim durumunu kaydet, sonraki akşam yine dener.
+    try:
+        istek("GET", f"{API}/{SURUM}/{uid}", params={"fields": "username", "access_token": tok})
+        k["erisim"] = {"durum": "acik", "zaman": datetime.now(TR).isoformat(timespec="minutes")}
+    except Hata as e:
+        k["erisim"] = {"durum": "kapali", "zaman": datetime.now(TR).isoformat(timespec="minutes"), "hata": str(e)}
+        print(f"Meta API erişimi kapalı ({e}); hiçbir video değişmedi, sonraki akşam yine denenecek.")
+        kaydet(k)
+        return 0
+    if kuru:
+        print("[kuru] erişim açık; yayınlanmadı.")
+        kaydet(k)
+        return 0
     try:
         mid, link = yayinla(v, tok, uid)
         v.update({"durum": "paylasildi", "media_id": mid, "permalink": link, "zaman": datetime.now(TR).isoformat(timespec="minutes")})
@@ -120,10 +131,14 @@ def main():
         v.update({"durum": "hata", "hata": str(e), "zaman": datetime.now(TR).isoformat(timespec="minutes")})
         print(f"HATA (tekrar denenmedi): {e}")
         kod = 1
+    kaydet(k)
+    return kod
+
+
+def kaydet(k):
     with open("kuyruk.json", "w", encoding="utf-8") as f:
         json.dump(k, f, ensure_ascii=False, indent=1)
         f.write("\n")
-    return kod
 
 
 if __name__ == "__main__":

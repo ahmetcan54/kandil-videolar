@@ -2,7 +2,9 @@ name: Instagram yayını
 
 on:
   schedule:
-    - cron: "0 16 * * *"   # 16:00 UTC = 19:00 Türkiye (GitHub zamanlanmış görevleri birkaç dakika gecikebilir)
+    - cron: "0 16 * * *"    # 19:00 Türkiye
+    - cron: "30 16 * * *"   # 19:30 yedek: GitHub zamanlanmış görevleri bazen atlıyor (25.11'de olmadı)
+    - cron: "0 17 * * *"    # 20:00 yedek. yayinla.py "bugün zaten yayınlandı" diyerek çift yayını engeller
   workflow_dispatch:
     inputs:
       kuru:

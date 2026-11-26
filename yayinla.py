@@ -79,6 +79,11 @@ def main():
         k = json.load(f)
     simdi = datetime.now(TR)
     bugun = simdi.date().isoformat()
+    # GitHub zamanlanmış görevi saatlerce gecikebiliyor (25.11: 8 saat): gece yayın olmasın.
+    # Elle tetikleme (workflow_dispatch) her saatte çalışır.
+    if os.environ.get("OLAY") == "schedule" and not 18 <= simdi.hour <= 23:
+        print(f"{simdi:%H:%M} TR: zamanlanmış görev yayın saatleri (18:00-23:59) dışında geç çalıştı, yayın yok.")
+        return 0
     videolar = k.setdefault("videolar", [])
     if any(v.get("durum") == "paylasildi" and str(v.get("zaman", "")).startswith(bugun) for v in videolar):
         print(f"{bugun}: bugün zaten bir video yayınlandı.")

@@ -41,6 +41,7 @@ jobs:
           IG_ID: ${{ secrets.IG_ID }}
           IG_API: ${{ secrets.IG_API }}
           KURU: ${{ github.event_name == 'workflow_dispatch' && inputs.kuru || 'false' }}
+          OLAY: ${{ github.event_name }}
         run: python yayinla.py
       - name: Sonucu kuyruğa yaz
         if: always()

@@ -85,6 +85,10 @@ def main():
         print(f"{simdi:%H:%M} TR: zamanlanmış görev yayın saatleri (18:00-23:59) dışında geç çalıştı, yayın yok.")
         return 0
     videolar = k.setdefault("videolar", [])
+    # Duraklatma (ör. Meta API erişimini kısıtladığında): yayin.py duraklat / devam ile değişir
+    if k.get("duraklat"):
+        print(f"Yayın duraklatıldı: {k.get('duraklat_nedeni', '')}. Kuyruk bekliyor, hiçbir şey yayınlanmadı.")
+        return 0
     # Günde bir akşam yayını: zamanlanmış görev, bu akşam (18:00 sonrası) yayın yapıldıysa çıkar.
     # Elle tetikleme (workflow_dispatch) bu kontrole takılmaz; her çalıştırmada en fazla bir video yayınlar.
     aksam = f"{bugun}T18"

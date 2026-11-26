@@ -1,10 +1,16 @@
 name: Instagram yayını
 
 on:
+  # GitHub zamanlanmış görevleri tam saat/buçukta sıkça gecikiyor ya da atlanıyor (25-26.11'de yaşandı):
+  # yoğun olmayan dakikalara yayılmış 6 deneme (TR 19:13-21:07). Hangisi önce çalışırsa yayınlar;
+  # yayinla.py "bugün zaten yayınlandı" diyerek diğerlerinde çift yayını engeller.
   schedule:
-    - cron: "0 16 * * *"    # 19:00 Türkiye
-    - cron: "30 16 * * *"   # 19:30 yedek: GitHub zamanlanmış görevleri bazen atlıyor (25.11'de olmadı)
-    - cron: "0 17 * * *"    # 20:00 yedek. yayinla.py "bugün zaten yayınlandı" diyerek çift yayını engeller
+    - cron: "13 16 * * *"
+    - cron: "29 16 * * *"
+    - cron: "47 16 * * *"
+    - cron: "11 17 * * *"
+    - cron: "37 17 * * *"
+    - cron: "7 18 * * *"
   workflow_dispatch:
     inputs:
       kuru:

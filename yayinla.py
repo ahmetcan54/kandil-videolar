@@ -85,8 +85,13 @@ def main():
         print(f"{simdi:%H:%M} TR: zamanlanmış görev yayın saatleri (18:00-23:59) dışında geç çalıştı, yayın yok.")
         return 0
     videolar = k.setdefault("videolar", [])
-    if any(v.get("durum") == "paylasildi" and str(v.get("zaman", "")).startswith(bugun) for v in videolar):
-        print(f"{bugun}: bugün zaten bir video yayınlandı.")
+    # Günde bir akşam yayını: zamanlanmış görev, bu akşam (18:00 sonrası) yayın yapıldıysa çıkar.
+    # Elle tetikleme (workflow_dispatch) bu kontrole takılmaz; her çalıştırmada en fazla bir video yayınlar.
+    aksam = f"{bugun}T18"
+    if os.environ.get("OLAY") == "schedule" and any(
+            v.get("durum") == "paylasildi" and str(v.get("zaman", "")) >= aksam and str(v.get("zaman", "")).startswith(bugun)
+            for v in videolar):
+        print(f"{bugun}: bu akşam zaten bir video yayınlandı.")
         return 0
     aday = sorted((v for v in videolar if v.get("durum") == "bekliyor" and v.get("tarih", "") <= bugun),
                   key=lambda v: (v.get("tarih", ""), v.get("sira", 0)))

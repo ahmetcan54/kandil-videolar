@@ -23,5 +23,8 @@
    "hata": "HTTP 400: API access blocked. [kod 200]",
    "zaman": "2026-11-27T00:06+03:00"
   }
- ]
+ ],
+ "duraklat": true,
+ "duraklat_nedeni": "Meta API erişimi kısıtlı (hesap incelemesi), 2026-11-27",
+ "duraklat_tarihi": "2026-11-27T00:37"
 }
